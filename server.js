@@ -5,7 +5,7 @@ import cors from 'cors';
 import { config } from 'dotenv'; config();// import dotenv from 'dotenv';
 
 //Database Connection
-import connectDB from './database/database.js'; connectDB() //Import Database //Connect to database
+import './database/database.js' 
 
 /////////////////////////
 ///// Route Imports /////
@@ -31,7 +31,7 @@ import authRouter from './routes/auth/auth-router.js';
 
 
 const app = express() //initialize backend express app
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 3001
 
 //////////////////////
 ///// Middleware /////
