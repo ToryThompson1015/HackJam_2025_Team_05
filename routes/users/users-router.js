@@ -1,5 +1,6 @@
 import express from 'express';
 import { getUsers, getUserById, updateUserProfile, getUserStats } from '../../controllers/users/users-controller.js';
+import authMiddleware from '../../middleware/auth-middleware.js';
 import { updateProfileValidation } from '../../middleware/validation/user-validation.js';
 import { handleValidationErrors } from '../../middleware/validation/validation-handler.js';
 

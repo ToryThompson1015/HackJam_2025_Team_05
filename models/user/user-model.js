@@ -24,7 +24,8 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters']
+    minlength: [6, 'Password must be at least 6 characters'],
+    select: false
   },
   avatar: {
     type: String,
@@ -33,8 +34,15 @@ const userSchema = new mongoose.Schema({
   cohort: {
     type: String,
     required: [true, 'Cohort is required'],
-    trim: true
-  },
+    trim: true,
+    enum: [
+    'Web Dev 2024-Winter', 'Web Dev 2023-Fall', 'Web Dev 2023-Summer', 'Web Dev 2023-Spring',
+    'Data Analytics 2024-Winter', 'Data Analytics 2023-Fall', 'Data Analytics 2023-Summer', 'Data Analytics 2023-Spring',
+    'Cybersecurity 2024-Winter', 'Cybersecurity 2023-Fall', 'Cybersecurity 2023-Summer',
+    'Cloud Computing 2024-Winter', 'Cloud Computing 2023-Fall',
+    'Software Engineering 2024-Winter', 'Software Engineering 2023-Fall'
+  ]
+},
   graduationDate: {
     type: Date,
     required: [true, 'Graduation date is required']
@@ -99,7 +107,6 @@ const userSchema = new mongoose.Schema({
 });
 
 // Index for better query performance
-userSchema.index({ email: 1 });
 userSchema.index({ totalPoints: -1 });
 userSchema.index({ currentLevel: -1 });
 

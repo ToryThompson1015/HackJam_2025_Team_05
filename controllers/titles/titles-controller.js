@@ -1,6 +1,40 @@
 import Title from '../../models/title/title-model.js';
 import User from '../../models/user/user-model.js';
 
+export const createTitle = async (req, res) => {
+  try {
+    const { name, description, levelRequired, category, color } = req.body;
+    
+    const title = new Title({
+      name,
+      description, 
+      levelRequired,
+      category,
+      color,
+      createdBy: req.user._id
+    });
+    
+    await title.save();
+    
+    res.status(201).json({
+      success: true,
+      message: 'Title created successfully',
+      data: title
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title name already exists'
+      });
+    }
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 export const getTitles = async (req, res) => {
   try {
     const category = req.query.category;

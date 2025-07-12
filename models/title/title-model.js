@@ -36,6 +36,10 @@ const titleSchema = new mongoose.Schema({
     required: [true, 'Title color is required'],
     match: [/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Please provide a valid hex color']
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
   prerequisites: {
     achievements: [{
       type: mongoose.Schema.Types.ObjectId,

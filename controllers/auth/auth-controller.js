@@ -42,9 +42,11 @@ export const registerUser = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Registration error:', error)
     res.status(500).json({ 
       success: false, 
-      message: 'Server error' 
+      message: 'Server error', 
+      ...(process.env.NODE_ENV === 'development' && { error: error.message })
     });
   }
 };
@@ -53,7 +55,7 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).populate('currentTitle');
+    const user = await User.findOne({ email }).select('+password').populate('currentTitle');
 
     if (user && (await user.comparePassword(password))) {
       user.lastLogin = new Date();
@@ -82,9 +84,11 @@ export const loginUser = async (req, res) => {
       });
     }
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error' 
+      message: 'Server error',
+      ...(process.env.NODE_ENV === 'development' && { error: error.message }) 
     });
   }
 };

@@ -12,6 +12,7 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
+
 router.get('/', getLeaderboards);
 router.get('/top/:type/:timeframe', getTopPerformers);
 router.get('/cohort/:cohort', getCohortLeaderboard);

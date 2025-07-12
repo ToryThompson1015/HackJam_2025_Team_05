@@ -2,10 +2,13 @@ import express from 'express';
 import cors from 'cors';
 // import helmet from 'helmet';
 // import morgan from 'morgan';
+import mongoose from 'mongoose';
 import { config } from 'dotenv'; config();// import dotenv from 'dotenv';
 
 //Database Connection
-import './database/database.js' 
+// import './database/database.js' 
+import connectDB from './database/database.js';
+
 
 /////////////////////////
 ///// Route Imports /////
@@ -31,7 +34,12 @@ import authRouter from './routes/auth/auth-router.js';
 
 
 const app = express() //initialize backend express app
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3000
+
+//Connect to database
+connectDB().catch(err => {
+    console.error('Database connection failed, but server will continue:', err.message);
+});
 
 //////////////////////
 ///// Middleware /////
@@ -64,11 +72,22 @@ if (process.env.NODE_ENV === 'development') {
 
 //Health Check to make sure API is running smooth
 app.get('/api/health', (req, res) => {
-    res.json({
+    console.log('Health check endpoint accessed');
+    
+    let dbStatus = 'Unknown';
+    try {
+        dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+    } catch (error) {
+        dbStatus = 'Error checking DB status';
+    }
+    
+    res.status(200).json({
         status: 'OK',
         message: 'Per Scholas Alumni Platform API',
         timestamp: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        environment: process.env.NODE_ENV,
+        database: dbStatus
     });
 });
 
@@ -80,7 +99,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/users', usersRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/achievements', achievementsRouter);
-app.use('/titles', titlesRouter);
+app.use('/api/titles', titlesRouter);
 app.use('/api/leaderboards', leaderboardsRouter);
 app.use('/api/auth',  authRouter);
 
@@ -91,6 +110,22 @@ app.use('/api/auth',  authRouter);
 // setupErrorHandling(app);
 
 //Start Server
-app.listen(PORT, (req, res) => {
-    console.log(`Server is listening on PORT: ${PORT}`);
+// app.listen(PORT, () => {
+//     console.log(`Server is listening on PORT: ${PORT}`);
+// });
+
+console.log('🔍 About to start server...');
+console.log('🔍 PORT:', PORT);
+console.log('🔍 Environment variables loaded:', {
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
+    MONGODB_URI: process.env.MONGODB_URI ? 'Present' : 'Missing'
+});
+
+app.listen(PORT, () => {
+    console.log(`🚀 Server is listening on PORT: ${PORT}`);
+    console.log(`📍 Health check: http://localhost:${PORT}/api/health`);
+    console.log(`📍 Alternative: http://127.0.0.1:${PORT}/api/health`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+    console.log('✅ Server started successfully!');
 });

@@ -7,6 +7,7 @@ import {
   deleteActivity,
   getCategoryInfo
 } from '../../controllers/activities/activities-controller.js';
+import authMiddleware from '../../middleware/auth-middleware.js';
 import { createActivityValidation, updateActivityValidation } from '../../middleware/validation/activity-validation.js';
 import { handleValidationErrors } from '../../middleware/validation/validation-handler.js';
 
