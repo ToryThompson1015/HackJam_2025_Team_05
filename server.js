@@ -114,18 +114,18 @@ app.use('/api/auth',  authRouter);
 //     console.log(`Server is listening on PORT: ${PORT}`);
 // });
 
-console.log('🔍 About to start server...');
-console.log('🔍 PORT:', PORT);
-console.log('🔍 Environment variables loaded:', {
+console.log('About to start server...');
+console.log('PORT:', PORT);
+console.log('Environment variables loaded:', {
     NODE_ENV: process.env.NODE_ENV,
     PORT: process.env.PORT,
     MONGODB_URI: process.env.MONGODB_URI ? 'Present' : 'Missing'
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server is listening on PORT: ${PORT}`);
-    console.log(`📍 Health check: http://localhost:${PORT}/api/health`);
-    console.log(`📍 Alternative: http://127.0.0.1:${PORT}/api/health`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
-    console.log('✅ Server started successfully!');
+    console.log(`Server is listening on PORT: ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
+    console.log(`Alternative: http://127.0.0.1:${PORT}/api/health`);
+    console.log(`Environment: ${process.env.NODE_ENV}`);
+    console.log('Server started successfully!');
 });

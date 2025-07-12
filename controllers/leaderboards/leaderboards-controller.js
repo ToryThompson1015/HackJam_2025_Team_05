@@ -2,6 +2,75 @@ import Leaderboard from '../../models/leaderboard/leaderboard-model.js';
 import User from '../../models/user/user-model.js';
 import Activity from '../../models/activity/activity-model.js';
 
+//Auto-generate default leaderboards
+export const generateDefaultLeaderboards = async () => {
+  try {
+    // Check if leaderboards already exist
+    const existingCount = await Leaderboard.countDocuments();
+    if (existingCount > 0) return;
+
+    const defaultLeaderboards = [
+      {
+        name: "All-Time Points Champions",
+        description: "Top performers based on total points earned",
+        type: "points", 
+        timeframe: "all-time"
+      },
+      {
+        name: "Level Leaders",
+        description: "Highest level achievers on the platform",
+        type: "level",
+        timeframe: "all-time" 
+      },
+      {
+        name: "Monthly Points Race",
+        description: "Top point earners this month",
+        type: "points",
+        timeframe: "monthly"
+      },
+      {
+        name: "Weekly Achievers", 
+        description: "This week's top performers",
+        type: "points",
+        timeframe: "weekly"
+      }
+    ];
+
+    // Create leaderboards and populate with current user data
+    for (const leaderboardData of defaultLeaderboards) {
+      const leaderboard = new Leaderboard(leaderboardData);
+      
+      // Get top users for this leaderboard type
+      let users = [];
+      if (leaderboardData.type === 'points') {
+        users = await User.find({ isActive: true })
+          .select('firstName lastName avatar totalPoints')
+          .sort({ totalPoints: -1 })
+          .limit(20);
+      } else if (leaderboardData.type === 'level') {
+        users = await User.find({ isActive: true })
+          .select('firstName lastName avatar currentLevel')
+          .sort({ currentLevel: -1 })
+          .limit(20);
+      }
+
+      // Add participants to leaderboard
+      leaderboard.participants = users.map((user, index) => ({
+        user: user._id,
+        score: leaderboardData.type === 'points' ? user.totalPoints : user.currentLevel,
+        rank: index + 1,
+        lastUpdated: new Date()
+      }));
+
+      await leaderboard.save();
+    }
+
+    console.log('Default leaderboards created successfully');
+  } catch (error) {
+    console.error('Error creating default leaderboards:', error);
+  }
+};
+
 export const getLeaderboards = async (req, res) => {
   try {
     const type = req.query.type;
@@ -14,6 +83,17 @@ export const getLeaderboards = async (req, res) => {
     const leaderboards = await Leaderboard.find(filter)
       .populate('participants.user', 'firstName lastName avatar currentTitle cohort graduationDate')
       .sort({ lastCalculated: -1 });
+
+      // Auto-generation logic: Create default leaderboards if none exist
+    if (leaderboards.length === 0 && !type && !timeframe) {
+      // No leaderboards exist, create default ones
+      await generateDefaultLeaderboards();
+      
+      // Fetch again after creation
+      leaderboards = await Leaderboard.find(filter)
+        .populate('participants.user', 'firstName lastName avatar currentTitle cohort graduationDate')
+        .sort({ lastCalculated: -1 });
+    }
 
     res.json({
       success: true,
@@ -213,7 +293,7 @@ export const updateLeaderboardRankings = async (req, res) => {
       });
     }
 
-    // This would typically recalculate rankings
+    // This should recalculate rankings
     leaderboard.lastCalculated = new Date();
     await leaderboard.save();
 
