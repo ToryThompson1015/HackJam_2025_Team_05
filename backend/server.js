@@ -34,7 +34,7 @@ import authRouter from './routes/auth/auth-router.js';
 
 
 const app = express() //initialize backend express app
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3001
 
 //Connect to database
 connectDB().catch(err => {

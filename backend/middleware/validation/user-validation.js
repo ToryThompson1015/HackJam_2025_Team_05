@@ -16,5 +16,14 @@ export const updateProfileValidation = [
   body('avatar')
     .optional()
     .isURL()
-    .withMessage('Avatar must be a valid URL')
+    .withMessage('Avatar must be a string')
+    //I have left out skillsContributed validation since we aren't using it right now, in the future we may so I will only comment out the code
+//     skillsContributed: [{
+//   skill: String,
+//   level: {
+//     type: String,
+//     enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert'],
+//     default: 'Beginner'
+//   }
+// }],
 ];
