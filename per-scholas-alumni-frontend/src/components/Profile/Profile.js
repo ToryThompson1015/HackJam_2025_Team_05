@@ -9,6 +9,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [userStats, setUserStats] = useState(null);
   const [recentActivities, setRecentActivities] = useState([]);
+  const [menteesCount, setMenteesCount] = useState(0);
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
@@ -22,6 +23,7 @@ const Profile = () => {
     if (user) {
       fetchUserStats();
       fetchRecentActivities();
+      fetchMenteesCount();
     }
   }, [user]);
 
@@ -47,6 +49,37 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Error fetching recent activities:', error);
+    }
+  };
+
+  const fetchMenteesCount = async () => {
+    try {
+      const response = await activitiesAPI.getActivities({
+        userId: user._id,
+        category: 'mentoring',
+        limit: 1000 
+      });
+      
+      if (response.data.success) {
+        const mentoringActivities = response.data.data.activities;
+        
+        const uniqueMentees = new Set();
+        
+        mentoringActivities.forEach(activity => {
+          const titleMatch = activity.title.match(/Mentored\s+(.+)/i);
+          if (titleMatch) {
+            uniqueMentees.add(titleMatch[1].trim());
+          }
+        });
+        
+        setMenteesCount(uniqueMentees.size);
+      }
+    } catch (error) {
+      console.error('Error fetching mentees count:', error);
+      
+      const fallbackCount = userStats?.stats?.mentoringStats?.menteesCount ||
+                           user?.mentoringStats?.menteesCount || 0;
+      setMenteesCount(fallbackCount);
     }
   };
 
@@ -99,7 +132,15 @@ const Profile = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    if (!dateString) return 'Not set';
+
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
+
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -107,7 +148,7 @@ const Profile = () => {
   };
 
   const formatCategoryName = (category) => {
-    return category.split('-').map(word => 
+    return category.split('-').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
@@ -166,7 +207,7 @@ const Profile = () => {
                   `${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}`
                 )}
               </div>
-              
+
               {isEditing && (
                 <div className="form-group">
                   <label htmlFor="avatar" className="form-label">Avatar URL</label>
@@ -268,7 +309,7 @@ const Profile = () => {
                 <span>Level {user.currentLevel + 1}</span>
               </div>
               <div className="progress-bar">
-                <div 
+                <div
                   className="progress-fill"
                   style={{ width: `${getProgressPercentage()}%` }}
                 ></div>
@@ -301,11 +342,7 @@ const Profile = () => {
               <div className="stat-label">Points This Month</div>
             </div>
             <div className="stat-card">
-              <div className="stat-number">{userStats.stats.badgeCount}</div>
-              <div className="stat-label">Badges Earned</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">{userStats.stats.mentoringStats?.menteesCount || 0}</div>
+              <div className="stat-number">{menteesCount}</div>
               <div className="stat-label">Mentees</div>
             </div>
           </div>

@@ -6,7 +6,8 @@ import {
   Trophy, 
   Users, 
   User,
-  Plus
+  Plus,
+  Sparkles
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -40,6 +41,11 @@ const Sidebar = () => {
       path: '/profile',
       label: 'Profile',
       icon: User
+    },
+    {
+      path: '/ai-suggestions',
+      label: 'AI Insights',
+      icon: Sparkles
     }
   ];
 
