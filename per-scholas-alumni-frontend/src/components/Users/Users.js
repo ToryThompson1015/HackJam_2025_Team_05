@@ -140,7 +140,7 @@ const Users = () => {
                     <span className="stat-label">XP</span>
                   </div>
                   <div className="stat">
-                    <span className="stat-number">{user.badges?.length || 0}</span>
+                    <span className="stat-number">{user.currentLevel}</span>
                     <span className="stat-label">Badges</span>
                   </div>
                 </div>
@@ -206,7 +206,7 @@ const Users = () => {
           >
             Next
           </button>
-        </div>
+        </div> 
       )}
     </div>
   );

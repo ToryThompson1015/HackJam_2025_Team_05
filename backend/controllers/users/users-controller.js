@@ -1,8 +1,43 @@
 import User from '../../models/user/user-model.js';
 import Activity from '../../models/activity/activity-model.js';
+import Title from '../../models/title/title-model.js';
+
+const assignFirstChampionTitle = async () => {
+  try {
+    const firstChampionTitle = await Title.findOne({ name: 'First Champion' });
+    
+    if (!firstChampionTitle) {
+      console.warn('First Champion title not found');
+      return;
+    }
+
+    const topUser = await User.findOne({ isActive: true })
+      .sort({ totalPoints: -1, currentLevel: -1 })
+      .limit(1);
+
+    if (!topUser) {
+      return;
+    }
+
+    await User.updateMany(
+      { currentTitle: firstChampionTitle._id },
+      { $unset: { currentTitle: 1 } }
+    );
+
+    await User.findByIdAndUpdate(topUser._id, {
+      currentTitle: firstChampionTitle._id
+    });
+
+    console.log(`First Champion title assigned to ${topUser.firstName} ${topUser.lastName}`);
+  } catch (error) {
+    console.error('Error assigning First Champion title:', error);
+  }
+};
 
 export const getUsers = async (req, res) => {
   try {
+    await assignFirstChampionTitle();
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
@@ -79,6 +114,8 @@ export const updateUserProfile = async (req, res) => {
       user.skillsContributed = skillsContributed || user.skillsContributed;
 
       const updatedUser = await user.save();
+
+      await assignFirstChampionTitle();
 
       res.json({
         success: true,
